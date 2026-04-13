@@ -21,7 +21,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=8080
 EXPOSE 8080
 
-RUN groupadd --system --gid 1001 nodejs \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates openssl libssl3 \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nextjs \
   && mkdir -p /app/data
 
