@@ -2,12 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
 }
 
+body {
+  font-family: Charter, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, 'Times New Roman', serif;
+  line-height: 1.6;
+}
+
 * {
   box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+.prose {
+  --tw-prose-headings: rgb(24 24 27);
+  --tw-prose-body: rgb(39 39 42);
+  --tw-prose-links: rgb(24 24 27);
+  --tw-prose-bold: rgb(24 24 27);
+  --tw-prose-quotes: rgb(39 39 42);
+  --tw-prose-code: rgb(24 24 27);
 }
