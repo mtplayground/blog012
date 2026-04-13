@@ -1,11 +1,7 @@
 .git
-.gitignore
-.next
-node_modules
-npm-debug.log
-.gh_token
 .claude
-.progress
-.env
-prisma/dev.db
-prisma/dev.db-journal
+.gh_token
+.github_token
+target/debug
+target/wasm32-unknown-unknown
+node_modules
