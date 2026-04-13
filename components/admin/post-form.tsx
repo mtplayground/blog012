@@ -4,7 +4,7 @@ import { useActionState, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-type CreatePostFormState = {
+type PostFormState = {
   message: string | null;
   fieldErrors: {
     title?: string;
@@ -13,11 +13,20 @@ type CreatePostFormState = {
   };
 };
 
-type PostFormProps = {
-  action: (state: CreatePostFormState, formData: FormData) => Promise<CreatePostFormState>;
+type PostFormValues = {
+  title: string;
+  slug: string;
+  content: string;
+  published: boolean;
 };
 
-const initialCreatePostFormState: CreatePostFormState = {
+type PostFormProps = {
+  action: (state: PostFormState, formData: FormData) => Promise<PostFormState>;
+  initialValues?: Partial<PostFormValues>;
+  submitLabel?: string;
+};
+
+const initialPostFormState: PostFormState = {
   message: null,
   fieldErrors: {}
 };
@@ -31,12 +40,13 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export default function PostForm({ action }: PostFormProps) {
-  const [formState, formAction, isPending] = useActionState(action, initialCreatePostFormState);
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [content, setContent] = useState('');
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+export default function PostForm({ action, initialValues, submitLabel = 'Create Post' }: PostFormProps) {
+  const [formState, formAction, isPending] = useActionState(action, initialPostFormState);
+  const [title, setTitle] = useState(initialValues?.title ?? '');
+  const [slug, setSlug] = useState(initialValues?.slug ?? '');
+  const [content, setContent] = useState(initialValues?.content ?? '');
+  const [published, setPublished] = useState(initialValues?.published ?? false);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(initialValues?.slug));
 
   const previewContent = useMemo(() => content.trim(), [content]);
 
@@ -119,7 +129,14 @@ export default function PostForm({ action }: PostFormProps) {
       </div>
 
       <label className="inline-flex items-center gap-2 text-sm text-zinc-700" htmlFor="published">
-        <input className="h-4 w-4 rounded border-zinc-300" id="published" name="published" type="checkbox" />
+        <input
+          checked={published}
+          className="h-4 w-4 rounded border-zinc-300"
+          id="published"
+          name="published"
+          onChange={(event) => setPublished(event.target.checked)}
+          type="checkbox"
+        />
         Publish immediately
       </label>
 
@@ -129,7 +146,7 @@ export default function PostForm({ action }: PostFormProps) {
           disabled={isPending}
           type="submit"
         >
-          {isPending ? 'Saving...' : 'Create Post'}
+          {isPending ? 'Saving...' : submitLabel}
         </button>
       </div>
     </form>
