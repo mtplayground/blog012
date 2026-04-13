@@ -2,12 +2,36 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import './globals.css';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'http://localhost:8080';
+const siteName = 'blog012';
+const defaultDescription = 'A minimal blog built with Next.js, Prisma, and markdown content.';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: 'blog012',
-    template: '%s | blog012'
+    default: siteName,
+    template: `%s | ${siteName}`
   },
-  description: 'A minimal blog built with Next.js, Prisma, and markdown content.'
+  description: defaultDescription,
+  alternates: {
+    canonical: '/'
+  },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName,
+    title: siteName,
+    description: defaultDescription
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteName,
+    description: defaultDescription
+  },
+  robots: {
+    index: true,
+    follow: true
+  }
 };
 
 type RootLayoutProps = {

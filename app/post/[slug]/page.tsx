@@ -26,20 +26,28 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
   if (!post) {
     return {
-      title: 'Post not found'
+      title: 'Post not found',
+      robots: {
+        index: false,
+        follow: false
+      }
     };
   }
 
   const description = createExcerpt(post.content, 160);
+  const canonicalPath = `/post/${post.slug}`;
 
   return {
     title: post.title,
     description,
+    alternates: {
+      canonical: canonicalPath
+    },
     openGraph: {
       title: post.title,
       description,
       type: 'article',
-      url: `/post/${post.slug}`,
+      url: canonicalPath,
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString()
     },
