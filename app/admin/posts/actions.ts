@@ -139,3 +139,31 @@ export async function updatePostAction(postId: number, _previousState: PostFormS
   revalidatePath(`/admin/posts/${postId}/edit`);
   redirect('/admin');
 }
+
+export async function togglePostPublishedAction(postId: number): Promise<void> {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { id: true, published: true }
+  });
+
+  if (!post) {
+    return;
+  }
+
+  await prisma.post.update({
+    where: { id: post.id },
+    data: {
+      published: !post.published
+    }
+  });
+
+  revalidatePath('/admin');
+}
+
+export async function deletePostAction(postId: number): Promise<void> {
+  await prisma.post.deleteMany({
+    where: { id: postId }
+  });
+
+  revalidatePath('/admin');
+}
