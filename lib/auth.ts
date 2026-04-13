@@ -3,8 +3,9 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 
 import { env } from '@/lib/env';
+import { SESSION_COOKIE_NAME } from '@/lib/session';
 
-export const SESSION_COOKIE_NAME = 'admin_session';
+export { SESSION_COOKIE_NAME };
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 type SessionPayload = {
