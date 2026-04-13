@@ -1,0 +1,109 @@
+# Architecture Plan (Issues #1-#18)
+
+## 1) Module structure and file organization
+
+### App layers
+- Presentation (Next.js App Router pages/components):
+  - `app/(public)/page.tsx` (home)
+  - `app/(public)/posts/[slug]/page.tsx` (post detail)
+  - `app/(admin)/admin/login/page.tsx`
+  - `app/(admin)/admin/page.tsx` (dashboard)
+  - `app/(admin)/admin/posts/new/page.tsx`
+  - `app/(admin)/admin/posts/[id]/edit/page.tsx`
+  - `app/not-found.tsx`, `app/error.tsx`
+  - `app/layout.tsx`, `app/globals.css`
+- API routes:
+  - `app/api/auth/login/route.ts`
+  - `app/api/auth/logout/route.ts`
+  - `app/api/admin/posts/route.ts` (list/create)
+  - `app/api/admin/posts/[id]/route.ts` (update/delete)
+  - `app/api/admin/posts/[id]/publish/route.ts` (toggle publish)
+- Data access:
+  - `prisma/schema.prisma`
+  - `lib/prisma.ts` (singleton Prisma client)
+  - `lib/posts.ts` (post queries/mutations)
+- Auth/session:
+  - `lib/auth.ts` (password verify, cookie/session helpers)
+  - `middleware.ts` (protect `/admin` excluding `/admin/login`)
+- Config/validation:
+  - `lib/env.ts` (typed env parsing)
+- Shared types/utilities:
+  - `types/post.ts`
+  - `lib/markdown.ts` (render/sanitize helpers)
+  - `lib/seo.ts` (metadata defaults)
+
+### Conventions
+- Use Next.js App Router + route groups `(public)` and `(admin)`.
+- Keep server-only logic in `lib/*` and API routes.
+- Use server components by default; client components only when interaction is needed (forms/editor).
+
+## 2) Shared model/types
+
+### Prisma Post model (Issue #2)
+Fields:
+- `id` (Int, autoincrement, PK)
+- `title` (String)
+- `slug` (String, unique)
+- `content` (String) // markdown source
+- `published` (Boolean, default false)
+- `createdAt`, `updatedAt` (DateTime)
+
+### TypeScript types
+- `PostListItem`: id, title, slug, published, updatedAt
+- `PostDetail`: full content + metadata
+- `PostInput`: title, slug, content, published?
+
+## 3) Dependencies between issues
+
+### Foundation first
+1. #1 Next.js + TS + Tailwind
+2. #2 Prisma + SQLite + Post model
+3. #3 Env config + `.env.example`
+4. #4 Docker + compose
+
+### Auth baseline
+5. #5 Login API
+6. #6 Admin login page
+7. #7 Auth middleware
+8. #8 Logout
+
+### Admin CMS features
+9. #9 Dashboard list
+10. #10 Create post form + markdown editor
+11. #11 Edit form
+12. #12 Delete + publish toggle
+
+### Public blog
+13. #13 Public layout + global styles
+14. #14 Home page published listing
+15. #15 Post detail markdown rendering
+
+### Polish/docs
+16. #16 Error + not-found
+17. #17 SEO + Open Graph
+18. #18 README
+
+Cross-cutting dependencies:
+- #2 required for #9-#15
+- #5-#8 required for #9-#12 admin routes/pages
+- #13 should precede #14-#15 for consistent UI shell
+- #17 depends on #13-#15 route structure/content
+
+## 4) Key design decisions
+
+- Auth strategy: simple admin session cookie (HTTP-only, Secure in prod, SameSite=Lax) backed by env credentials for single-admin use.
+- Password verification: compare submitted password with hashed env value; avoid plaintext env storage.
+- Slug handling: normalize on create/edit, enforce unique constraint at DB layer, show conflict errors.
+- Markdown: store raw markdown in DB; render server-side to HTML and sanitize before output.
+- API boundaries: write operations through admin API routes; read operations for public pages can use server-side data layer directly.
+- Prisma client management: singleton pattern to prevent connection churn in dev hot reload.
+- Error handling: typed error responses for APIs + Next error boundaries for UI resilience.
+- SEO defaults: site-wide metadata in root layout; per-post dynamic metadata with OG tags from post title/excerpt.
+
+## 5) Suggested package set
+
+- Core: `next`, `react`, `react-dom`, `typescript`, `tailwindcss`, `@prisma/client`, `prisma`
+- Auth/util: `bcryptjs`, `zod`, `cookie` (if needed)
+- Markdown: `react-markdown`, `remark-gfm`, `rehype-sanitize`, `rehype-slug`
+- Optional editor UI: lightweight textarea + preview initially, then editor package if needed
+
