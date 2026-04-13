@@ -13,3 +13,5 @@ node_modules/
 .progress
 
 .next/
+prisma/dev.db
+prisma/dev.db-journal
