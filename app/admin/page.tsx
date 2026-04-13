@@ -1,5 +1,4 @@
-import Link from 'next/link';
-
+import PostActions from '@/components/admin/post-actions';
 import prisma from '@/lib/prisma';
 
 function formatDate(date: Date): string {
@@ -62,14 +61,7 @@ export default async function AdminDashboardPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(post.updatedAt)}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3 text-sm">
-                        <Link className="text-zinc-700 underline-offset-4 hover:text-zinc-900 hover:underline" href={`/admin/posts/${post.id}/edit`}>
-                          Edit
-                        </Link>
-                        <Link className="text-red-600 underline-offset-4 hover:text-red-700 hover:underline" href={`/admin/posts/${post.id}/delete`}>
-                          Delete
-                        </Link>
-                      </div>
+                      <PostActions postId={post.id} published={post.published} />
                     </td>
                   </tr>
                 ))
